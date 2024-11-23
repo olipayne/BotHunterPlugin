@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.bothunter;
+package com.bothunter;
 
 import com.google.inject.Provides;
 import javax.inject.Inject;

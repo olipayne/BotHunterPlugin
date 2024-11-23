@@ -1,12 +1,12 @@
-package net.runelite.client.plugins.bothunter;
+package com.bothunter;
 
-import net.runelite.api.Actor;
 import net.runelite.api.Player;
 import net.runelite.api.Point;
 import net.runelite.client.ui.overlay.*;
 import javax.inject.Inject;
 import java.awt.*;
 import java.util.Map;
+
 
 public class BotHunterOverlay extends Overlay {
     private final BotHunterPlugin plugin;

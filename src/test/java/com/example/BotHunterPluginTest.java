@@ -1,8 +1,9 @@
+package com.bothunter;
+
 import net.runelite.client.RuneLite;
 import net.runelite.client.externalplugins.ExternalPluginManager;
-import net.runelite.client.plugins.bothunter.BotHunterPlugin;
 
-public class ExamplePluginTest
+public class BotHunterPluginTest
 {
 	public static void main(String[] args) throws Exception
 	{
