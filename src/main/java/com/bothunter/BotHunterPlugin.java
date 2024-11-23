@@ -11,10 +11,6 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
-import okhttp3.*;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -41,13 +37,16 @@ public class BotHunterPlugin extends Plugin {
 	@Inject
 	private BotHunterOverlay overlay;
 
-	private final OkHttpClient httpClient;
+	@Inject
+	private OkHttpClient okHttpClient;
+
+	@Inject
+	private Gson gson;
 
 	private static final String API_ENDPOINT = "https://ping.bothunter.cloud";
 	private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 	private static final int SUBMIT_INTERVAL_TICKS = 100; // About 60 seconds
 	private int tickCounter = 0;
-	private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 	private long lastSubmissionTime = 0;
 	private int totalSubmissions = 0;
 	private int failedSubmissions = 0;
@@ -78,14 +77,7 @@ public class BotHunterPlugin extends Plugin {
 	}
 
 	@Inject
-	public BotHunterPlugin() {
-		this.httpClient = new OkHttpClient.Builder()
-				.connectTimeout(30, TimeUnit.SECONDS)
-				.writeTimeout(30, TimeUnit.SECONDS)
-				.readTimeout(30, TimeUnit.SECONDS)
-				.retryOnConnectionFailure(true)
-				.build();
-	}
+	public BotHunterPlugin() {}
 
 	@Override
 	protected void startUp() throws Exception {
@@ -222,7 +214,7 @@ public class BotHunterPlugin extends Plugin {
 				.get()
 				.build();
 
-		httpClient.newCall(request).enqueue(new Callback() {
+		okHttpClient.newCall(request).enqueue(new Callback() {
 			@Override
 			public void onFailure(Call call, IOException e) {
 				log.debug("Failed to fetch anomaly score for {}: {}", playerName, e.getMessage());
@@ -297,7 +289,7 @@ public class BotHunterPlugin extends Plugin {
 	}
 
 	private void submitWithRetry(Request request, String jsonPayload, int currentRetry, int maxRetries, int retryDelayMs) {
-		httpClient.newCall(request).enqueue(new Callback() {
+		okHttpClient.newCall(request).enqueue(new Callback() {
 			@Override
 			public void onFailure(Call call, IOException e) {
 				failedSubmissions++;
