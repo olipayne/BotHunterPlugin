@@ -59,7 +59,10 @@ public class BotHunterPlugin extends Plugin {
 	private Set<String> reportedPlayers = new HashSet<>();
 	// Store anomaly scores with timestamps
 	private final Map<String, AnomalyData> anomalyScores = new ConcurrentHashMap<>();
+	private final Map<String, Long> notFoundCache = new ConcurrentHashMap<>();
 	private static final long SCORE_CACHE_DURATION = TimeUnit.MINUTES.toMillis(1);
+	private static final long NOT_FOUND_CACHE_DURATION = TimeUnit.MINUTES.toMillis(1);  // Cache "not found" for longer
+
 
 	private class AnomalyData {
 		double score;
@@ -106,6 +109,7 @@ public class BotHunterPlugin extends Plugin {
 		newPlayerSightings.clear();
 		reportedPlayers.clear();
 		anomalyScores.clear();
+		notFoundCache.clear();
 	}
 
 	@Subscribe
@@ -186,12 +190,23 @@ public class BotHunterPlugin extends Plugin {
 		WorldView worldView = client.getWorldView(-1);
 		if (worldView == null) return;
 
+		long now = System.currentTimeMillis();
+
+		// Clean up expired entries from not found cache
+		notFoundCache.entrySet().removeIf(entry ->
+				now - entry.getValue() > NOT_FOUND_CACHE_DURATION);
+
 		for (Player player : worldView.players()) {
 			if (player == null || player.getName() == null || player == client.getLocalPlayer()) {
 				continue;
 			}
 
 			String playerName = player.getName();
+
+			if (notFoundCache.containsKey(playerName)) {
+				continue;
+			}
+
 			AnomalyData existingScore = anomalyScores.get(playerName);
 
 			// Fetch new score if none exists or if cached score is expired
@@ -217,6 +232,11 @@ public class BotHunterPlugin extends Plugin {
 			@Override
 			public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
 				try (response) {
+					if (response.code() == 404) {
+						// Player not found, add to not found cache
+						notFoundCache.put(playerName, System.currentTimeMillis());
+						return;
+					}
 					if (!response.isSuccessful()) {
 						log.debug("Failed to fetch anomaly score for {}: {}",
 								playerName, response.code());
