@@ -15,7 +15,6 @@ import okhttp3.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -225,12 +224,12 @@ public class BotHunterPlugin extends Plugin {
 
 		httpClient.newCall(request).enqueue(new Callback() {
 			@Override
-			public void onFailure(@NotNull Call call, @NotNull IOException e) {
+			public void onFailure(Call call, IOException e) {
 				log.debug("Failed to fetch anomaly score for {}: {}", playerName, e.getMessage());
 			}
 
 			@Override
-			public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+			public void onResponse(Call call, Response response) throws IOException {
 				try (response) {
 					if (response.code() == 404) {
 						// Player not found, add to not found cache
@@ -300,7 +299,7 @@ public class BotHunterPlugin extends Plugin {
 	private void submitWithRetry(Request request, String jsonPayload, int currentRetry, int maxRetries, int retryDelayMs) {
 		httpClient.newCall(request).enqueue(new Callback() {
 			@Override
-			public void onFailure(@NotNull Call call, @NotNull IOException e) {
+			public void onFailure(Call call, IOException e) {
 				failedSubmissions++;
 				log.error("Failed to submit player data (attempt {}): {}",
 						totalSubmissions + 1, e.getMessage());
@@ -326,7 +325,7 @@ public class BotHunterPlugin extends Plugin {
 			}
 
 			@Override
-			public void onResponse(@NotNull Call call, @NotNull Response response) {
+			public void onResponse(Call call, Response response) {
 				int responseCode = response.code();
 				totalSubmissions++;
 				lastSubmissionTime = System.currentTimeMillis();
