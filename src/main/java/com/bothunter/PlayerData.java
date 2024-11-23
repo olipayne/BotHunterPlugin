@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.bothunter;
+package com.bothunter;
 
 import net.runelite.api.coords.WorldPoint;
 import lombok.Data;
