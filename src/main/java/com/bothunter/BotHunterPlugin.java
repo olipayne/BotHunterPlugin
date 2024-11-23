@@ -20,6 +20,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+import com.google.gson.Gson;
+
+
 @Slf4j
 @PluginDescriptor(
 		name = "BotHunter"
@@ -37,8 +49,7 @@ public class BotHunterPlugin extends Plugin {
 	@Inject
 	private BotHunterOverlay overlay;
 
-	@Inject
-	private OkHttpClient okHttpClient;
+	public OkHttpClient okHttpClient;
 
 	@Inject
 	private Gson gson;
